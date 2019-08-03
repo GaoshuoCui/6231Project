@@ -10,11 +10,12 @@ import remoteObject.EventSystemInterfacePOA;
 
 public class FrontEnd extends EventSystemInterfacePOA {
 	
+
 	private int targetPort;
 	private DatagramSocket aSocket = null;
 	private String request=null;
 	
-	private void udpSender(String request) {
+	public void udpSender(String request) {
 		try {
 			aSocket = new DatagramSocket();
 			
@@ -38,6 +39,8 @@ public class FrontEnd extends EventSystemInterfacePOA {
 		request="addEvent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity;
 		
 		this.udpSender(request);
+		
+		
 		
 		//TODO
 		return false;
