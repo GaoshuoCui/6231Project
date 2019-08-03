@@ -15,6 +15,36 @@ public class FrontEnd extends EventSystemInterfacePOA {
 	private DatagramSocket aSocket = null;
 	private String request=null;
 	
+	
+	
+	
+	
+    /**
+    sendRequest(sb.append(City)
+            .append(":")
+        command[0]
+            .append("addEvent")
+        command[1]
+        	ManagerID
+        command[2]
+				EventId
+        command[3] 
+        	event type;
+       	command[4]
+       		event compacity;
+       	command[5]
+       		customerID;
+       	command[6]
+       		new eventID;
+       	command[7]
+       		new eventtype;
+       	command[8]
+       		old eventID;
+       	command[9]
+       		old eventtype;               		
+     */
+    
+	
 	public void udpSender(String request) {
 		try {
 			aSocket = new DatagramSocket();

@@ -1,7 +1,7 @@
 package Sequencer;
 
-//import PortInfo.Replica;
-//import PortInfo.SequencerPort;
+import PortInfo.Replica;
+import PortInfo.SequencerPort;
 import java.io.IOException;
 import java.net.*;
 
@@ -13,7 +13,6 @@ public class Sequencer {
         this.sequenceNumber = 0;
     }
     private int udpPort= 2019;
-    
     public void listen(int udpPort) throws IOException {
         DatagramSocket socket = new DatagramSocket(udpPort);
         DatagramPacket packet = null;
