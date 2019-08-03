@@ -125,7 +125,7 @@ public class ReplicaManager {
 
     private void sendToReplicaAndReturnRes (Message msg) throws IOException {
         InetAddress address = InetAddress.getByName("localhost");
-        String ms = msg.getDepartment() + ":" + msg.getMessage();
+        String ms = msg.getCity() + ":" + msg.getMessage();
         byte[] data = ms.getBytes();
         DatagramPacket sendPacket = new DatagramPacket(data, data.length, address, ReplicaPort.REPLICA_PORT.port);
 
@@ -232,7 +232,7 @@ public class ReplicaManager {
                         Message message = backUpQueue.poll();
                         q.offer(message);
 
-                        String ms = message.getDepartment() + ":" + message.getMessage();
+                        String ms = message.getCity() + ":" + message.getMessage();
 
                         byte[] senddata = ms.getBytes();
                         DatagramPacket sendPacket = new DatagramPacket(senddata, senddata.length, packet.getAddress(), ReplicaPort.REPLICA_PORT.backUpPort);

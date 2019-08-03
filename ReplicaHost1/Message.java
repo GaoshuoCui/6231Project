@@ -9,10 +9,10 @@ public class Message {
     public Message() {
     }
 
-    public Message(String seqId, String FEHostAddress, String department, String message) {
+    public Message(String seqId, String FEHostAddress, String city, String message) {
         this.seqId = seqId;
         this.FEHostAddress = FEHostAddress;
-        this.city = department;
+        this.city = city;
         this.message = message;
     }
 
@@ -32,12 +32,12 @@ public class Message {
         this.FEHostAddress = FEHostAddress;
     }
 
-    public String getDepartment() {
+    public String getCity() {
         return city;
     }
 
-    public void setDepartment(String department) {
-        this.city = department;
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getMessage() {

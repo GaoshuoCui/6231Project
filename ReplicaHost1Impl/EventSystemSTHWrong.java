@@ -25,9 +25,6 @@ public class EventSystemSTHWrong {
 
 	public Logger logger;
 	public boolean bug;
-
-    public ConcurrentHashMap<String, ConcurrentHashMap<String, Course>> compCourseDatabase = new ConcurrentHashMap<String, ConcurrentHashMap<String, Course>>();
-
     public EventSystemSTHWrong(){ }
 
     public String addEvent(String eventID, String eventtype) {
