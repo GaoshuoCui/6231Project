@@ -1,10 +1,13 @@
 package FrontEnd;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -14,9 +17,12 @@ import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-import remoteObject.EventSystemInterface;
-import remoteObject.EventSystemInterfaceHelper;
-import remoteObject.EventSystemInterfacePOA;
+import ReplicaHost1RemoteObject.EventSystemInterface;
+import ReplicaHost1RemoteObject.EventSystemInterfaceHelper;
+import ReplicaHost1RemoteObject.EventSystemInterfacePOA;
+import functions.FuntionMembers;
+
+
 
 public class FrontEnd extends EventSystemInterfacePOA {
 	
@@ -24,7 +30,7 @@ public class FrontEnd extends EventSystemInterfacePOA {
 	public static void main(String[] args) throws Exception {
 
 		// create and initialize the ORB //// get reference to rootpoa &amp; activate the POAManager
-		ORB orb = ORB.init(args, null);      
+		ORB orb = ORB.init(new String[]{"-ORBInitialHost", "localhost", "-ORBInitialPort", "1050"}, null);   
 		POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 		rootpoa.the_POAManager().activate();
 
@@ -53,10 +59,12 @@ public class FrontEnd extends EventSystemInterfacePOA {
 
 	private int targetPort=2019;
 	private DatagramSocket aSocket = null;
+	private DatagramSocket listenSocket = null;
+	
 	private String request=null;
 	private ORB orb;
-
-	
+	private Map<String,String> resultSet=new HashMap<String,String>();
+	private HashMap<String, Object> result=new HashMap<String, Object>();
 	private String managerId="*";
 	private String eventId="*";
 	private String eventtype="*";
@@ -72,7 +80,32 @@ public class FrontEnd extends EventSystemInterfacePOA {
 	}
 
 	
-	
+    private HashMap<String, Object> udpListener(DatagramSocket listenSocket,  Map<String,String> resultSet) throws Exception {
+    	listenSocket=new DatagramSocket(8001);
+        byte[] data = new byte[1024];
+        DatagramPacket packet = new DatagramPacket(data, data.length);
+        try {
+        	listenSocket.receive(packet);
+            //String result = new String(packet.getData(), 0 , packet.getLength());
+            
+           
+            result=(HashMap<String, Object>) FuntionMembers.byteArrayToObject(packet.getData());
+            
+            
+            System.out.println("receive " + result.get("addEvent"));
+
+            //String[] res = result.split(":");
+            //resultSet.put(res[0], res[1]);
+
+            listenSocket.close();
+        } catch (SocketException e){
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
 	public void udpSender(String request) {
 		try {
 			aSocket = new DatagramSocket();
@@ -121,22 +154,30 @@ public class FrontEnd extends EventSystemInterfacePOA {
 	@Override
 	public boolean addEvent(String managerId, String eventId, String eventtype, int capacity) {
 		// TODO Auto-generated method stub
-		request="addEvent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
+		request=managerId.substring(0, 3)+":"+"addEvent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
 		
 		System.out.println(request);
+		HashMap<String, Object> listenResult=new HashMap<String, Object>();
 		this.udpSender(request);
 		
+		listenResult.get("addEvent");
+		try {
+			listenResult=this.udpListener(listenSocket, resultSet);
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
 		
 		
 		//TODO
-		return false;
+		return (boolean) listenResult.get("addEvent");
 	}
 
 	@Override
 	public boolean removeEvent(String managerId, String eventId, String eventtype) {
 		// TODO Auto-generated method stub
 		
-		request="removeEvent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
+		request=managerId.substring(0, 3)+":"+"removeEvent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
 		
 		this.udpSender(request);
 		return false;
@@ -145,7 +186,7 @@ public class FrontEnd extends EventSystemInterfacePOA {
 	@Override
 	public Any listEventAvailability(String managerId, String eventtype) {
 		// TODO Auto-generated method stub
-		request="listEventAvailability"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
+		request=managerId.substring(0, 3)+":"+"listEventAvailability"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
 		System.out.println(request);
 		this.udpSender(request);
 		HashMap<String, Integer> result = new HashMap<>();
@@ -163,7 +204,7 @@ public class FrontEnd extends EventSystemInterfacePOA {
 	public Any bookevent(String customerId, String eventId, String eventtype) {
 		// TODO Auto-generated method stub
 		
-		request="bookevent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
+		request=customerId.substring(0, 3)+":"+"bookevent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
 		this.udpSender(request);
 		return null;
 	}
@@ -172,7 +213,7 @@ public class FrontEnd extends EventSystemInterfacePOA {
 	public Any getbookingSchedule(String customerId) {
 		// TODO Auto-generated method stub
 		
-		request="getbookingSchedule"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
+		request=customerId.substring(0, 3)+":"+"getbookingSchedule"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
 		this.udpSender(request);
 		return null;
 	}
@@ -180,7 +221,7 @@ public class FrontEnd extends EventSystemInterfacePOA {
 	@Override
 	public Any dropevent(String customerId, String eventId) {
 		// TODO Auto-generated method stub
-		request="dropevent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
+		request=customerId.substring(0, 3)+":"+"dropevent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
 		this.udpSender(request);
 		return null;
 	}
@@ -190,7 +231,7 @@ public class FrontEnd extends EventSystemInterfacePOA {
 			String oldeventtype) {
 		// TODO Auto-generated method stub
 		
-		request="swapEvent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
+		request=customerId.substring(0, 3)+":"+"swapEvent"+"-"+managerId+"-"+eventId+"-"+eventtype+"-"+capacity+"-"+customerID+"-"+neweventId+"-"+neweventtype+"-"+oldeventId+"-"+oldeventtype;
 		this.udpSender(request);
 		
 		return null;

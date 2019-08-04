@@ -115,6 +115,8 @@ public synchronized boolean addEvent(String managerId, String eventId, String ev
 	LOGGER.info(String.format(Constants.LOG_MSG, Constants.OP_ADD_EVENT,
 			Arrays.asList(managerId, eventId, eventtype, capacity), status, msg));
 
+	this.udpToFE(status, "addEvent");
+	
 	return status;
 }
 
@@ -178,6 +180,7 @@ public HashMap<String, Integer> listEventAvailabilityOnServer(String managerId, 
 	LOGGER.info(String.format(Constants.LOG_MSG, Constants.OP_LIST_EVENT_AVAILABILITY,
 			Arrays.asList(managerId, eventtype), result != null, result));
 
+	this.udpToFE(result, "addEvent");
 	return result;
 }
 
@@ -794,6 +797,44 @@ private SimpleEntry<Boolean, String> checkEventAvailability(String eventId, Stri
 
 	return new SimpleEntry<Boolean, String>(status, msg);
 }
+
+
+public void udpToFE(Object info, String method) {
+
+	int FEprot=8001;
+	LOGGER.info("Making UPD Socket Call to " + "FE" + " for method : " + method);
+
+	// UDP SOCKET CALL AS CLIENT
+	HashMap<String, Object> data = new HashMap<>();
+	byte[] response = null;
+	data.put(method, info);
+	DatagramSocket socket = null;
+	try {
+		socket = new DatagramSocket();
+		byte[] message = FuntionMembers.objectToByteArray(data);
+		InetAddress remoteUdpHost = InetAddress.getByName("localhost");
+		DatagramPacket request = new DatagramPacket(message, message.length, remoteUdpHost, FEprot);
+		socket.send(request);
+		
+		//byte[] buffer = new byte[65556];
+		//DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+		//socket.receive(reply);
+		//response = reply.getData();
+	} catch (SocketException e) {
+		LOGGER.severe("SocketException: " + e.getMessage());
+		e.printStackTrace();
+	} catch (IOException e) {
+		LOGGER.severe("IOException : " + e.getMessage());
+		e.printStackTrace();
+	} finally {
+		if (socket != null)
+			socket.close();
+	}
+
+	
+}
+
+
 
 /**
  * Creates & sends the UDP request

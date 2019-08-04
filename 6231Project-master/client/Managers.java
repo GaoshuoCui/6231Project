@@ -24,13 +24,13 @@ import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 
+import ReplicaHost1RemoteObject.EventSystemInterface;
+import ReplicaHost1RemoteObject.EventSystemInterfaceHelper;
 import functions.Constants;
 import functions.EventType;
 import functions.FuntionMembers;
 import functions.Role;
 import logTool.allLogger;
-import remoteObject.EventSystemInterface;
-import remoteObject.EventSystemInterfaceHelper;
 
 /**
  * UI operation for Manager, runnable.
@@ -61,7 +61,7 @@ public class Managers implements Runnable {
 		try {
 			setupLogging();
 			LOGGER.info("MANAGER LOGIN("+user+")");
-			ORB orb = ORB.init(args, null);
+			ORB orb = ORB.init(new String[]{"-ORBInitialHost", "localhost", "-ORBInitialPort", "1050"}, null);
 			Object objRef = orb.resolve_initial_references("NameService");
 			NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
 			stub = (EventSystemInterface) EventSystemInterfaceHelper.narrow(ncRef.resolve_str("FrontEnd"));

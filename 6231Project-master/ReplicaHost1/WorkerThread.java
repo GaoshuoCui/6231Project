@@ -52,8 +52,10 @@ public class WorkerThread implements Runnable {
 
             String[] commandori = info.split(" ");
             //test command---------------------------------------------------------------
-            String[] command = {"addEvent","MTLM0001","MTLA070819","Conferences","3","MTLC0001"
-            		,"MTLA070819","Conferences","MTLA010819","Conferences"};
+           // String[] command = {"addEvent","MTLM0001","MTLA070819","Conferences","3","MTLC0001"
+            //		,"MTLA070819","Conferences","MTLA010819","Conferences"};
+            String[] command = info.split("-");
+           // System.out.println(info);
             String result = "";
             /**
             sendRequest(sb.append(City)
@@ -85,7 +87,9 @@ public class WorkerThread implements Runnable {
                 switch(command[0]) {
                     case "addEvent" :
                         result = cityWrong.addEvent(command[1],command[2]);
-                        city.addEvent(command[1],command[2], command[3], Integer.parseInt(command[4]));
+                        boolean ans=city.addEvent(command[1],command[2], command[3], Integer.parseInt(command[4]));
+                        
+                        city.udpToFE(ans, "addEvent");
                         break;
                     case "removeEvent" :
                         result = cityWrong.removeEvent(command[1],command[2]);
@@ -97,6 +101,8 @@ public class WorkerThread implements Runnable {
                         StringBuilder r = new StringBuilder();
                         Arrays.stream(res).forEach(record -> r.append(record).append(" "));
                         result = r.toString().trim();
+                        
+                        city.udpToFE(result, "listEventAvailability");
                         break;
                     case "bookevent" :
                         city.bookevent(command[5], command[2], command[3]);
@@ -180,7 +186,7 @@ public class WorkerThread implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //socket.close();不能关闭
+        //socket.close();ä¸�èƒ½å…³é—­
     }
 
     private void ReplyEcho(DatagramPacket packet) {

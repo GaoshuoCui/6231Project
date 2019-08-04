@@ -1,9 +1,10 @@
 package Sequencer;
 
-import PortInfo.Replica;
-import PortInfo.SequencerPort;
 import java.io.IOException;
 import java.net.*;
+
+import PortInformation.Replica;
+import PortInformation.SequencerPort;
 
 public class Sequencer {
 
@@ -13,10 +14,7 @@ public class Sequencer {
         this.sequenceNumber = 0;
     }
     private int udpPort= 2019;
-    
     public void listen() throws IOException {
-    	
- 
         DatagramSocket socket = new DatagramSocket(udpPort);
         DatagramPacket packet = null;
         byte[] data = null;
@@ -25,19 +23,17 @@ public class Sequencer {
         {
             data = new byte[1024];
             packet = new DatagramPacket(data, data.length);
-          //  System.out.println("sequencer before receiving");
             socket.receive(packet);
-         //   System.out.println("sequencer after receiving");
+
             String FEIpAddress = packet.getAddress().getHostAddress();
             String receiveMessage = new String(packet.getData(), 0, packet.getLength());
-            System.out.println(receiveMessage);
-            
+
             packetAndSendMessage(FEIpAddress, receiveMessage, socket);
 
             count++;
-            System.out.println("Server Connectedï¼š" + count);
+            System.out.println("Server Connected:" + count);
             InetAddress address = packet.getAddress();
-            System.out.println("Server IPï¼š"+address.getHostAddress());
+            System.out.println("Server IP:"+address.getHostAddress());
 
         }
     }
@@ -57,6 +53,7 @@ public class Sequencer {
         socket.send(sendPacket2);
         socket.send(sendPacket3);
         socket.send(sendPacket4);
+        System.out.println("Multicast finished!");
     }
 
     private void packetAndSendMessage(String FEIpAddress, String receiveMessage, DatagramSocket socket) throws IOException {
@@ -72,8 +69,7 @@ public class Sequencer {
 
     public static void main(String[] args) throws IOException {
         Sequencer sequencer = new Sequencer();
-        System.out.println("sequencer is running");
+        System.out.println("Sequencer Start!");
         sequencer.listen();
-        
     }
 }
